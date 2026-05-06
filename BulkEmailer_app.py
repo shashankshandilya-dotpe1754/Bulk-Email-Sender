@@ -159,6 +159,7 @@ st.markdown("""
     .ql-toolbar.ql-snow {
         background-color: #2b2b2b !important;
         border: 1px solid #555 !important;
+        border-radius: 8px 8px 0px 0px !important;
     }
 
     /* Toolbar Icons */
@@ -166,8 +167,6 @@ st.markdown("""
     .ql-toolbar button svg {
         filter: invert(1);
     }
-
-    /* Dropdown Text */
 
     .ql-picker {
         color: white !important;
@@ -177,40 +176,37 @@ st.markdown("""
         color: white !important;
     }
 
-    /* Container */
+    /* Editor Container */
 
     .ql-container.ql-snow {
-        border: 1px solid #555 !important;
         background-color: white !important;
+        border: 1px solid #555 !important;
+        border-top: none !important;
+        border-radius: 0px 0px 8px 8px !important;
     }
 
-    /* Editor */
+    /* Editable Area */
 
     .ql-editor {
+        min-height: 400px !important;
+
         background-color: white !important;
         color: black !important;
-        min-height: 350px !important;
-
-        /* Gmail-like Styling */
 
         font-family: Arial, sans-serif !important;
         font-size: 14px !important;
         line-height: 1.6 !important;
 
-        /* Cursor */
-
         caret-color: black !important;
+
+        overflow-y: auto !important;
     }
 
-    /* Preserve Bullet Styling */
+    /* Lists */
 
     .ql-editor ul,
     .ql-editor ol {
-        padding-left: 1.5em !important;
-    }
-
-    .ql-editor li {
-        margin-bottom: 6px !important;
+        padding-left: 1.5rem !important;
     }
 
     /* Placeholder */
@@ -225,88 +221,82 @@ st.markdown("""
 
 st.markdown("### Write Email Body Here")
 
+default_email_body = """
+<p>Hi [Owner Name],</p>
+
+<p>
+We're launching Dotpe Horizon, an AI-powered business intelligence digest,
+built entirely from your Rista data to help grow your revenue.
+</p>
+
+<br>
+
+<p>Every week, on WhatsApp, you'll get:</p>
+
+<ul>
+    <li>What's actually driving (or dragging) your revenue</li>
+    <li>Where your orders, AOV, customers and margins moved - and why</li>
+    <li>Actions to address before next week</li>
+</ul>
+
+<p>
+It's private. It's yours. No benchmarks, no comparisons - just your numbers.
+To start receiving it, simply reply to this email with "YES".
+Your data is never shared with anyone outside Horizon.
+</p>
+
+<br>
+
+<p>Team Dotpe Horizon</p>
+"""
+
 email_body = st.components.v1.html(
-    """
-    <div>
+    f'''
+    <div id="toolbar">
 
-        <div id="editor-container">
+        <select class="ql-font"></select>
+        <select class="ql-size"></select>
 
-            <p>Hi [Owner Name],</p>
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
 
-            <p>
-            We're launching Dotpe Horizon, an AI-powered business intelligence digest,
-            built entirely from your Rista data to help grow your revenue.
-            </p>
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
 
-            <br>
+        <button class="ql-link"></button>
 
-            <p>Every week, on WhatsApp, you'll get:</p>
+        <button class="ql-clean"></button>
 
-            <ul>
-                <li>What's actually driving (or dragging) your revenue</li>
-                <li>Where your orders, AOV, customers and margins moved - and why</li>
-                <li>Actions to address before next week</li>
-            </ul>
+    </div>
 
-            <p>
-            It's private. It's yours. No benchmarks, no comparisons - just your numbers.
-            To start receiving it, simply reply to this email with "YES".
-            Your data is never shared with anyone outside Horizon.
-            </p>
-
-            <br>
-
-            <p>Team Dotpe Horizon</p>
-
-        </div>
-
+    <div id="editor">
+        {default_email_body}
     </div>
 
     <script>
 
-        var quill = new Quill('#editor-container', {
+        var quill = new Quill('#editor', {{
 
-            theme: 'snow',
+            modules: {{
+                toolbar: '#toolbar'
+            }},
 
-            placeholder: 'Write your email here...',
+            theme: 'snow'
+        }});
 
-            modules: {
+        // Make editor editable properly
 
-                toolbar: [
-
-                    [{ 'font': [] }, { 'size': [] }],
-
-                    ['bold', 'italic', 'underline'],
-
-                    [{ 'color': [] }, { 'background': [] }],
-
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-
-                    [{ 'align': [] }],
-
-                    ['link'],
-
-                    ['clean']
-
-                ]
-            }
-        });
-
-        // FORCE GMAIL STYLE
-
-        const editor = document.querySelector('.ql-editor');
-
-        editor.style.fontFamily = 'Arial, sans-serif';
-        editor.style.fontSize = '14px';
-        editor.style.lineHeight = '1.6';
-        editor.style.backgroundColor = 'white';
-        editor.style.color = 'black';
+        document.querySelector('.ql-editor').setAttribute(
+            'contenteditable',
+            'true'
+        );
 
     </script>
-    """,
-    height=500
+    ''',
+    height=500,
+    scrolling=True
 )
-
 # ---------------- SIGNATURE ---------------- #
 
 signature = st.text_area(
