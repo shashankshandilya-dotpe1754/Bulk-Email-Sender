@@ -5,10 +5,13 @@ import pandas as pd
 import smtplib
 import ssl
 import re
+import mimetypes
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+from email.mime.base import MIMEBase
+from email import encoders
 
 # ---------------- PAGE CONFIG ---------------- #
 
@@ -219,6 +222,24 @@ email_body = st.components.v1.html(
     scrolling=True
 )
 
+# ---------------- ATTACHMENTS ---------------- #
+
+attachments = st.file_uploader(
+    "Attachments (Optional)",
+    type=[
+        "pdf",
+        "doc",
+        "docx",
+        "xls",
+        "xlsx",
+        "csv",
+        "jpg",
+        "jpeg",
+        "png"
+    ],
+    accept_multiple_files=True
+)
+
 # ---------------- SIGNATURE ---------------- #
 
 signature = st.text_area(
@@ -241,7 +262,8 @@ def send_bulk_emails(
     cc_emails,
     bcc_emails,
     subject,
-    signature
+    signature,
+    attachments
 ):
 
     smtp_server = "smtp.gmail.com"
@@ -390,6 +412,36 @@ def send_bulk_emails(
 
                 msg.attach(mime_img)
 
+            # ---------------- ATTACH FILES ---------------- #
+
+            if attachments:
+
+                for attachment in attachments:
+
+                    mime_type, _ = mimetypes.guess_type(
+                        attachment.name
+                    )
+
+                    if mime_type is None:
+                        mime_type = "application/octet-stream"
+
+                    main_type, sub_type = mime_type.split("/", 1)
+
+                    part = MIMEBase(main_type, sub_type)
+
+                    part.set_payload(
+                        attachment.read()
+                    )
+
+                    encoders.encode_base64(part)
+
+                    part.add_header(
+                        "Content-Disposition",
+                        f'attachment; filename="{attachment.name}"'
+                    )
+
+                    msg.attach(part)
+
             # ---------------- SEND EMAIL ---------------- #
 
             server.sendmail(
@@ -450,7 +502,8 @@ if st.button("Send Emails"):
                     cc_emails,
                     bcc_emails,
                     subject,
-                    signature
+                    signature,
+                    attachments
                 )
 
                 st.success(
