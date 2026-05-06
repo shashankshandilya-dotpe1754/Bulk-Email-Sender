@@ -39,8 +39,6 @@ st.markdown("""
         padding-top: 2rem;
     }
 
-    /* INPUT FIELDS */
-
     .stTextInput input {
         background-color: #2b2b2b !important;
         color: white !important;
@@ -51,18 +49,13 @@ st.markdown("""
         background-color: #2b2b2b !important;
         color: white !important;
         border: 1px solid #555 !important;
-        font-weight: bold !important;
     }
-
-    /* PLACEHOLDER TEXT */
 
     input::placeholder,
     textarea::placeholder {
         color: #cfcfcf !important;
         opacity: 1 !important;
     }
-
-    /* FILE UPLOADER */
 
     .stFileUploader {
         background-color: #2b2b2b !important;
@@ -82,14 +75,10 @@ st.markdown("""
         color: white !important;
     }
 
-    /* LABELS */
-
     label {
         color: white !important;
         font-weight: 500;
     }
-
-    /* BUTTON */
 
     .stButton button {
         width: 100%;
@@ -146,116 +135,15 @@ bcc_emails = st.text_area(
 
 subject = st.text_input("Subject")
 
-# ---------------- RICH TEXT EMAIL EDITOR ---------------- #
-
-st.markdown("""
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-<style>
-
-    /* Toolbar */
-
-    .ql-toolbar.ql-snow {
-        background-color: #2b2b2b !important;
-        border: 1px solid #555 !important;
-        border-radius: 8px 8px 0px 0px !important;
-    }
-
-    /* Toolbar Icons */
-
-    .ql-toolbar button svg {
-        filter: invert(1);
-    }
-
-    .ql-picker {
-        color: white !important;
-    }
-
-    .ql-picker-label {
-        color: white !important;
-    }
-
-    /* Editor Container */
-
-    .ql-container.ql-snow {
-        background-color: white !important;
-        border: 1px solid #555 !important;
-        border-top: none !important;
-        border-radius: 0px 0px 8px 8px !important;
-    }
-
-    /* Editable Area */
-
-    .ql-editor {
-        min-height: 400px !important;
-
-        background-color: white !important;
-        color: black !important;
-
-        font-family: Arial, sans-serif !important;
-        font-size: 14px !important;
-        line-height: 1.6 !important;
-
-        caret-color: black !important;
-
-        overflow-y: auto !important;
-    }
-
-    /* Lists */
-
-    .ql-editor ul,
-    .ql-editor ol {
-        padding-left: 1.5rem !important;
-    }
-
-    /* Placeholder */
-
-    .ql-editor.ql-blank::before {
-        color: #888 !important;
-        font-style: normal !important;
-    }
-
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("### Write Email Body Here")
-
-default_email_body = """
-<p>Hi [Owner Name],</p>
-
-<p>
-We're launching Dotpe Horizon, an AI-powered business intelligence digest,
-built entirely from your Rista data to help grow your revenue.
-</p>
-
-<br>
-
-<p>Every week, on WhatsApp, you'll get:</p>
-
-<ul>
-    <li>What's actually driving (or dragging) your revenue</li>
-    <li>Where your orders, AOV, customers and margins moved - and why</li>
-    <li>Actions to address before next week</li>
-</ul>
-
-<p>
-It's private. It's yours. No benchmarks, no comparisons - just your numbers.
-To start receiving it, simply reply to this email with "YES".
-Your data is never shared with anyone outside Horizon.
-</p>
-
-<br>
-
-<p>Team Dotpe Horizon</p>
-"""
+# ---------------- QUILL EDITOR ---------------- #
 
 email_body = st.components.v1.html(
-    f'''
-    <div id="toolbar">
+    """
+    
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
-        <select class="ql-font"></select>
-        <select class="ql-size"></select>
+    <div id="toolbar">
 
         <button class="ql-bold"></button>
         <button class="ql-italic"></button>
@@ -270,43 +158,72 @@ email_body = st.components.v1.html(
 
     </div>
 
-    <div id="editor">
-        {default_email_body}
+    <div id="editor" style="
+        background:white;
+        color:black;
+        height:320px;
+        font-size:14px;
+        font-family:Arial;
+        padding:10px;
+    ">
+        <p>Hi,</p>
+
+        <p>
+            We're launching Dotpe Horizon, an AI-powered business intelligence digest,
+            built entirely from your Rista data to help grow your revenue.
+        </p>
+
+        <p>
+            Every week, on WhatsApp, you'll get:
+        </p>
+
+        <ul>
+            <li>What's actually driving (or dragging) your revenue</li>
+            <li>Where your orders, AOV, customers and margins moved - and why</li>
+            <li>Actions to address before next week</li>
+        </ul>
+
+        <p>
+            It's private. It's yours. No benchmarks, no comparisons - just your numbers.
+            To start receiving it, simply reply to this email with "YES".
+            Your data is never shared with anyone outside Horizon.
+        </p>
+
+        <br>
+
+        <p>Team Dotpe Horizon</p>
+
     </div>
 
     <script>
 
-        var quill = new Quill('#editor', {{
+        var quill = new Quill('#editor', {
 
-            modules: {{
+            theme: 'snow',
+
+            modules: {
                 toolbar: '#toolbar'
-            }},
+            }
 
-            theme: 'snow'
-        }});
+        });
 
-        // Make editor editable properly
-
-        document.querySelector('.ql-editor').setAttribute(
-            'contenteditable',
-            'true'
-        );
+        document.querySelector('.ql-editor').style.minHeight = "300px";
+        document.querySelector('.ql-editor').style.color = "black";
+        document.querySelector('.ql-editor').style.backgroundColor = "white";
+        document.querySelector('.ql-editor').style.caretColor = "black";
 
     </script>
-    ''',
-    height=500,
+
+    """,
+    height=420,
     scrolling=True
 )
+
 # ---------------- SIGNATURE ---------------- #
 
 signature = st.text_area(
     "Paste Email Signature Here",
-    height=150,
-    placeholder="""Regards,
-
-Shashank Shandilya
-Executive-Data Analytics
-M:+918860844270"""
+    height=150
 )
 
 # ---------------- LOGO ---------------- #
@@ -317,74 +234,6 @@ st.image(logo_path, width=180)
 
 # ---------------- FUNCTIONS ---------------- #
 
-def extract_greeting(text):
-
-    greetings = [
-        "Hi",
-        "Hello",
-        "Dear",
-        "Good Morning",
-        "Good Afternoon",
-        "Good Evening",
-        "Respected"
-    ]
-
-    for greeting in greetings:
-
-        pattern = rf"\\b{greeting}\\b"
-
-        if re.search(pattern, text, re.IGNORECASE):
-            return greeting
-
-    return None
-
-
-def personalize_email(body, full_name):
-
-    first_name = full_name.strip().split()[0]
-
-    greeting = extract_greeting(body)
-
-    if greeting:
-
-        pattern = rf"{greeting}"
-
-        replacement = f"{greeting} {first_name},"
-
-        updated_body = re.sub(
-            pattern,
-            replacement,
-            body,
-            count=1,
-            flags=re.IGNORECASE
-        )
-
-        return updated_body
-
-    return body
-
-
-def format_signature(signature_text):
-
-    lines = signature_text.split("\\n")
-
-    formatted_lines = []
-
-    for line in lines:
-
-        if line.strip():
-
-            formatted_lines.append(
-                f"<b>{line}</b>"
-            )
-
-        else:
-
-            formatted_lines.append("<br>")
-
-    return "<br>".join(formatted_lines)
-
-
 def send_bulk_emails(
     sender_email,
     app_password,
@@ -392,7 +241,6 @@ def send_bulk_emails(
     cc_emails,
     bcc_emails,
     subject,
-    email_body,
     signature
 ):
 
@@ -422,27 +270,69 @@ def send_bulk_emails(
                 row["Name"]
             ).strip()
 
-            personalized_body = personalize_email(
-                email_body,
-                receiver_name
-            )
+            personalized_body = f"""
+            <p>
+                Hi {receiver_name.split()[0]},
+            </p>
 
-            formatted_signature = format_signature(
-                signature
-            )
+            <p>
+                We're launching Dotpe Horizon, an AI-powered business intelligence digest,
+                built entirely from your Rista data to help grow your revenue.
+            </p>
+
+            <p>
+                Every week, on WhatsApp, you'll get:
+            </p>
+
+            <ul>
+                <li>
+                    What's actually driving (or dragging) your revenue
+                </li>
+
+                <li>
+                    Where your orders, AOV, customers and margins moved - and why
+                </li>
+
+                <li>
+                    Actions to address before next week
+                </li>
+            </ul>
+
+            <p>
+                It's private. It's yours. No benchmarks, no comparisons - just your numbers.
+                To start receiving it, simply reply to this email with "YES".
+                Your data is never shared with anyone outside Horizon.
+            </p>
+
+            <br>
+
+            <p>
+                Team Dotpe Horizon
+            </p>
+            """
 
             final_body = f"""
             <html>
 
-            <body style="background-color:white;color:black;font-family:Arial;">
+            <body style="
+                background-color:white;
+                color:black;
+                font-family:Arial;
+                padding:20px;
+            ">
 
-                <div style="font-size:14px;line-height:1.6;">
+                <div style="
+                    font-size:14px;
+                    line-height:1.6;
+                ">
 
                     {personalized_body}
 
                     <br><br>
 
-                    {formatted_signature}
+                    <b>
+                        {signature.replace(chr(10), '<br>')}
+                    </b>
 
                     <br><br>
 
@@ -487,7 +377,7 @@ def send_bulk_emails(
 
             msg.attach(html_part)
 
-            # Attach Logo
+            # ---------------- ATTACH LOGO ---------------- #
 
             with open(logo_path, "rb") as img:
 
@@ -499,6 +389,8 @@ def send_bulk_emails(
                 )
 
                 msg.attach(mime_img)
+
+            # ---------------- SEND EMAIL ---------------- #
 
             server.sendmail(
                 sender_email,
@@ -558,7 +450,6 @@ if st.button("Send Emails"):
                     cc_emails,
                     bcc_emails,
                     subject,
-                    email_body,
                     signature
                 )
 
