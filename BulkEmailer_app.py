@@ -1,5 +1,3 @@
-# streamlit_app.py
-
 import streamlit as st
 import pandas as pd
 import smtplib
@@ -209,8 +207,6 @@ def send_bulk_emails(
             app_password
         )
 
-        # ---------------- NORMAL RECEIVER EMAILS ---------------- #
-
         manual_receivers = []
 
         if receiver_emails.strip():
@@ -223,8 +219,6 @@ def send_bulk_emails(
                 for email in receiver_emails.split(",")
                 if email.strip()
             ]
-
-        # ---------------- EXCEL BCC RECEIVERS ---------------- #
 
         excel_receivers = []
 
@@ -243,103 +237,139 @@ def send_bulk_emails(
                         "name": str(item).split("@")[0]
                     })
 
-        # ---------------- FINAL RECEIVER LIST ---------------- #
-
         final_receivers = manual_receivers + excel_receivers
 
         for person in final_receivers:
 
             receiver_email = person["email"]
             receiver_name = person["name"]
-# ---------------- PERSONALIZED GREETING ---------------- #
 
-email_content = email_body.strip() if email_body else ""
+            # ---------------- PERSONALIZED GREETING ---------------- #
 
-greetings = [
-    "hi",
-    "hello",
-    "dear",
-    "good morning",
-    "good afternoon",
-    "good evening"
-]
+            email_content = email_body.strip() if email_body else ""
 
-clean_text = re.sub(
-    r"<[^>]+>",
-    "",
-    email_content
-).strip().lower()
+            greetings = [
+                "hi",
+                "hello",
+                "dear",
+                "good morning",
+                "good afternoon",
+                "good evening"
+            ]
 
-greeting_found = False
+            clean_text = re.sub(
+                r"<[^>]+>",
+                "",
+                email_content
+            ).strip().lower()
 
-for greeting in greetings:
+            greeting_found = False
 
-    if clean_text.startswith(greeting):
+            for greeting in greetings:
 
-        greeting_found = True
-        break
+                if clean_text.startswith(greeting):
 
-if greeting_found:
+                    greeting_found = True
+                    break
 
-    email_content = re.sub(
-        r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\s|&nbsp;)*",
-        f"\\1\\2 {receiver_name}, ",
-        email_content,
-        flags=re.IGNORECASE
-    )
+            if greeting_found:
 
-    personalized_body = email_content
+                email_content = re.sub(
+                    r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\s|&nbsp;)*",
+                    f"\\1\\2 {receiver_name}, ",
+                    email_content,
+                    flags=re.IGNORECASE
+                )
 
-else:
+                personalized_body = email_content
 
-    personalized_body = f"""
-    <p style="margin:0;">
-        Hi {receiver_name},
-    </p>
+            else:
 
-    {email_content}
-    """
+                personalized_body = f"""
+                <p style="margin:0;">
+                    Hi {receiver_name},
+                </p>
 
-final_body = f"""
-<html>
+                {email_content}
+                """
 
-<body style="
-    background-color:white;
-    color:black;
-    font-family:Arial;
-    padding:10px 20px;
-    margin:0;
-">
+            final_body = f"""
+            <html>
 
-    <div style="
-        font-size:14px;
-        line-height:1.2;
-        margin:0;
-        padding:0;
-    ">
+            <body style="
+                background-color:white;
+                color:black;
+                font-family:Arial;
+                padding:10px 20px;
+                margin:0;
+            ">
 
-        {personalized_body}
+                <div style="
+                    font-size:14px;
+                    line-height:1.2;
+                    margin:0;
+                    padding:0;
+                ">
 
-        <br>
+                    {personalized_body}
 
-        <div style="margin-top:10px;">
-            <b>
-                {signature.replace(chr(10), '<br>')}
-            </b>
-        </div>
+                    <br>
 
-        <br>
+                    <div style="margin-top:10px;">
+                        <b>
+                            {signature.replace(chr(10), '<br>')}
+                        </b>
+                    </div>
 
-        <img src="cid:dotpelogo" width="180">
+                    <br>
 
-    </div>
+                    <img src="cid:dotpelogo" width="180">
 
-</body>
+                </div>
 
-</html>
-"""
+            </body>
 
-msg.attach(mime_img)
+            </html>
+            """
+
+            msg = MIMEMultipart("related")
+
+            msg["From"] = sender_email
+            msg["To"] = receiver_email
+            msg["Subject"] = subject
+
+            if cc_emails.strip():
+
+                msg["Cc"] = cc_emails
+
+            recipients = [receiver_email]
+
+            if cc_emails.strip():
+
+                recipients += [
+                    email.strip()
+                    for email in cc_emails.split(",")
+                ]
+
+            html_part = MIMEText(
+                final_body,
+                "html"
+            )
+
+            msg.attach(html_part)
+
+            # ---------------- ATTACH LOGO ---------------- #
+
+            with open(logo_path, "rb") as img:
+
+                mime_img = MIMEImage(img.read())
+
+                mime_img.add_header(
+                    "Content-ID",
+                    "<dotpelogo>"
+                )
+
+                msg.attach(mime_img)
 
             # ---------------- ATTACH FILES ---------------- #
 
@@ -381,6 +411,7 @@ msg.attach(mime_img)
                 recipients,
                 msg.as_string()
             )
+
 # ---------------- VALIDATIONS ---------------- #
 
 mandatory_fields = (
@@ -436,11 +467,10 @@ if st.button("Send Emails"):
 
                     st.stop()
 
-                bcc_list = []
                 for _, row in df.iterrows():
+
                     bcc_list.append({
                         "email": str(row["Email"]).strip(),
-
                         "name": str(row["Name"]).strip()
                         if "Name" in df.columns
                         else str(row["Email"]).split("@")[0]
@@ -464,246 +494,3 @@ if st.button("Send Emails"):
         except Exception as e:
 
             st.error(f"Error: {str(e)}")
-
-# ---------------- LOAD LOCAL IMAGES ---------------- #
-
-def get_base64(image_path):
-
-    with open(image_path, "rb") as img_file:
-
-        return base64.b64encode(
-            img_file.read()
-        ).decode()
-
-background_image = get_base64(
-    "maxbulk-using-gmail.png"
-)
-
-logo_image = get_base64(
-    "dotpe_logo.png"
-)
-
-# ---------------- CUSTOM CSS ---------------- #
-
-st.markdown(f"""
-<style>
-
-    .stApp {{
-        background: linear-gradient(
-            rgba(0, 0, 0, 0.72),
-            rgba(0, 0, 0, 0.72)
-        ),
-        url("data:image/png;base64,{background_image}");
-
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        color: white;
-    }}
-
-    .main > div {{
-        background: rgba(17, 17, 17, 0.78);
-        padding: 30px;
-        border-radius: 22px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0px 0px 35px rgba(0,0,0,0.55);
-        margin-top: 25px;
-    }}
-
-    .top-logo {{
-        position: fixed;
-        top: 12px;
-        left: 20px;
-        z-index: 9999;
-    }}
-
-    .top-logo img {{
-        width: 170px;
-        border-radius: 10px;
-        background: white;
-        padding: 6px 10px;
-        box-shadow: 0px 4px 18px rgba(0,0,0,0.45);
-    }}
-
-    .main-title {{
-        text-align: center;
-        color: white;
-        font-size: 34px;
-        font-weight: 800;
-        margin-bottom: 30px;
-        letter-spacing: 0.5px;
-        text-shadow: 2px 2px 15px rgba(0,0,0,0.7);
-    }}
-
-    .block-container {{
-        padding-top: 2rem;
-    }}
-
-    .stTextInput input {{
-        background: rgba(30, 30, 30, 0.78) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        border-radius: 12px !important;
-        height: 52px;
-        transition: 0.3s ease;
-    }}
-
-    .stTextInput input:focus {{
-        border: 1px solid #ff4b4b !important;
-        box-shadow: 0px 0px 12px rgba(255,75,75,0.55);
-    }}
-
-    .stTextArea textarea {{
-        background: rgba(30, 30, 30, 0.78) !important;
-        color: white !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        border-radius: 12px !important;
-        transition: 0.3s ease;
-    }}
-
-    .stTextArea textarea:focus {{
-        border: 1px solid #ff4b4b !important;
-        box-shadow: 0px 0px 12px rgba(255,75,75,0.55);
-    }}
-
-    input::placeholder,
-    textarea::placeholder {{
-        color: #d9d9d9 !important;
-        opacity: 1 !important;
-    }}
-
-    .stFileUploader {{
-        background: rgba(30, 30, 30, 0.78) !important;
-        padding: 14px;
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.12);
-        color: white !important;
-        transition: 0.3s ease;
-    }}
-
-    section[data-testid="stFileUploaderDropzone"] {{
-        background: rgba(30, 30, 30, 0.78) !important;
-        color: white !important;
-        border: 2px dashed rgba(255,255,255,0.2) !important;
-        border-radius: 16px !important;
-        transition: 0.3s ease;
-    }}
-
-    section[data-testid="stFileUploaderDropzone"]:hover {{
-        border: 2px dashed #ff4b4b !important;
-        background: rgba(50,50,50,0.88) !important;
-    }}
-
-    section[data-testid="stFileUploaderDropzone"] * {{
-        color: white !important;
-    }}
-
-    label {{
-        color: white !important;
-        font-weight: 600 !important;
-        font-size: 15px !important;
-        letter-spacing: 0.3px;
-    }}
-
-    .stButton button {{
-        width: 100%;
-        background: linear-gradient(
-            135deg,
-            #ff4b4b,
-            #d32f2f
-        );
-
-        color: white;
-        font-weight: 700;
-        font-size: 17px;
-        border-radius: 14px;
-        height: 56px;
-        border: none;
-        transition: all 0.3s ease;
-        box-shadow: 0px 6px 20px rgba(255,75,75,0.35);
-    }}
-
-    .stButton button:hover {{
-        transform: translateY(-2px);
-        background: linear-gradient(
-            135deg,
-            #ff5c5c,
-            #b71c1c
-        );
-
-        box-shadow: 0px 8px 24px rgba(255,75,75,0.5);
-        color: white;
-    }}
-
-    .stAlert {{
-        border-radius: 14px !important;
-    }}
-
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- TOP LEFT LOGO ---------------- #
-
-st.markdown(
-    f"""
-    <div class="top-logo">
-        <img src="data:image/png;base64,{logo_image}">
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# ---------------- FIX TOP WHITE BAR ---------------- #
-
-st.markdown("""
-<style>
-
-    .block-container {
-        padding-top: 1rem !important;
-    }
-
-    header[data-testid="stHeader"] {
-        background: transparent !important;
-        height: 0px !important;
-    }
-
-    .stApp > header {
-        background-color: transparent !important;
-    }
-
-    .main {
-        padding-top: 0rem !important;
-    }
-
-    .top-logo {
-        position: fixed;
-        top: 8px;
-        left: 18px;
-        z-index: 999999;
-    }
-
-    .top-logo img {
-        width: 170px;
-        border-radius: 10px;
-        background: white;
-        padding: 6px 10px;
-        box-shadow: 0px 4px 18px rgba(0,0,0,0.45);
-    }
-
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------- CLEAR ALL FIELDS ON REFRESH ---------------- #
-
-if "clear_state" not in st.session_state:
-
-    st.session_state.clear_state = True
-
-    for key in list(st.session_state.keys()):
-
-        del st.session_state[key]
-
-st.set_page_config(
-    page_title="Bulk Email Sender",
-    layout="centered"
-)
