@@ -146,6 +146,37 @@ email_body = st.components.v1.html(
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
+    <style>
+
+        /* TOOLBAR BUTTONS WHITE */
+
+        .ql-snow .ql-stroke {
+            stroke: white !important;
+        }
+
+        .ql-snow .ql-fill {
+            fill: white !important;
+        }
+
+        .ql-snow .ql-picker {
+            color: white !important;
+        }
+
+        .ql-toolbar.ql-snow {
+            border: 1px solid #555 !important;
+            background: #1f1f1f !important;
+        }
+
+        .ql-container.ql-snow {
+            border: 1px solid #555 !important;
+        }
+
+        .ql-snow .ql-picker-options {
+            background: #2b2b2b !important;
+        }
+
+    </style>
+
     <div id="toolbar">
 
         <!-- TEXT STYLE -->
