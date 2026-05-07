@@ -259,7 +259,6 @@ def send_bulk_emails(
 
             {email_body}
             """
-               
 
             final_body = f"""
             <html>
@@ -336,39 +335,46 @@ def send_bulk_emails(
 
                 msg.attach(mime_img)
 
-# ---------------- ATTACH FILES ---------------- #
+            # ---------------- ATTACH FILES ---------------- #
 
-if attachments:
+            if attachments:
 
-    for attachment in attachments:
+                for attachment in attachments:
 
-        mime_type, _ = mimetypes.guess_type(
-            attachment.name
-        )
+                    mime_type, _ = mimetypes.guess_type(
+                        attachment.name
+                    )
 
-        if mime_type is None:
+                    if mime_type is None:
 
-            mime_type = "application/octet-stream"
+                        mime_type = "application/octet-stream"
 
-        main_type, sub_type = mime_type.split("/", 1)
+                    main_type, sub_type = mime_type.split("/", 1)
 
-        part = MIMEBase(main_type, sub_type)
+                    part = MIMEBase(main_type, sub_type)
 
-        attachment.seek(0)
+                    attachment.seek(0)
 
-        part.set_payload(
-            attachment.read()
-        )
+                    part.set_payload(
+                        attachment.read()
+                    )
 
-        encoders.encode_base64(part)
+                    encoders.encode_base64(part)
 
-        part.add_header(
-            "Content-Disposition",
-            f'attachment; filename="{attachment.name}"'
-        )
+                    part.add_header(
+                        "Content-Disposition",
+                        f'attachment; filename="{attachment.name}"'
+                    )
 
-        msg.attach(part)
+                    msg.attach(part)
 
+            # ---------------- SEND EMAIL ---------------- #
+
+            server.sendmail(
+                sender_email,
+                recipients,
+                msg.as_string()
+            )
 # ---------------- VALIDATIONS ---------------- #
 
 mandatory_fields = (
