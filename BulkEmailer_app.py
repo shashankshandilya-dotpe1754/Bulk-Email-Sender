@@ -139,15 +139,38 @@ uploaded_file = st.file_uploader(
 
 subject = st.text_input("Subject")
 
-# ---------------- CLEAR QUILL EMAIL BODY ---------------- #
+# ---------------- QUILL EMAIL BODY ---------------- #
 
 email_body = st.components.v1.html(
     """
-
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <style>
+
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .ql-toolbar.ql-snow {
+            border: 1px solid #555 !important;
+            background: #1f1f1f !important;
+        }
+
+        .ql-container.ql-snow {
+            border: 1px solid #555 !important;
+            height: 300px;
+            background: white;
+            color: black;
+        }
+
+        .ql-editor {
+            min-height: 300px;
+            color: black;
+            font-size: 14px;
+            font-family: Arial;
+        }
 
         .ql-snow .ql-stroke {
             stroke: white !important;
@@ -161,52 +184,9 @@ email_body = st.components.v1.html(
             color: white !important;
         }
 
-        .ql-toolbar.ql-snow {
-            border: 1px solid #555 !important;
-            background: #1f1f1f !important;
-        }
-
-        .ql-container.ql-snow {
-            border: 1px solid #555 !important;
-        }
-
-        .ql-snow .ql-picker-options {
-            background: #2b2b2b !important;
-        }
-
     </style>
 
-    <div id="toolbar">
-
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-
-        <select class="ql-align"></select>
-
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
-
-        <select class="ql-color"></select>
-        <select class="ql-background"></select>
-
-        <button class="ql-blockquote"></button>
-
-        <button class="ql-link"></button>
-
-        <button class="ql-clean"></button>
-
-    </div>
-
-    <div id="editor" style="
-        background:white;
-        color:black;
-        height:320px;
-        font-size:14px;
-        font-family:Arial;
-        padding:10px;
-    ">
-    </div>
+    <div id="editor"></div>
 
     <script>
 
@@ -215,25 +195,38 @@ email_body = st.components.v1.html(
             theme: 'snow',
 
             modules: {
-                toolbar: '#toolbar'
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{'align': []}],
+                    [{'list': 'ordered'}, {'list': 'bullet'}],
+                    [{'color': []}, {'background': []}],
+                    ['blockquote', 'link'],
+                    ['clean']
+                ]
             }
 
         });
 
-        // EMPTY EDITOR (NO DEFAULT CONTENT)
-
         quill.root.innerHTML = "";
 
-        document.querySelector('.ql-editor').style.minHeight = "300px";
-        document.querySelector('.ql-editor').style.color = "black";
-        document.querySelector('.ql-editor').style.backgroundColor = "white";
-        document.querySelector('.ql-editor').style.caretColor = "black";
+        function sendDataToStreamlit() {
+
+            const html = quill.root.innerHTML;
+
+            window.parent.postMessage({
+
+                type: "streamlit:setComponentValue",
+                value: html
+
+            }, "*");
+
+        }
+
+        quill.on('text-change', sendDataToStreamlit);
 
     </script>
-
     """,
-    height=420,
-    scrolling=True
+    height=380
 )
 
 # ---------------- ATTACHMENTS ---------------- #
@@ -343,9 +336,10 @@ def send_bulk_emails(
             <p>
                 Hi {receiver_name},
             </p>
-            
+
             {email_body}
             """
+               
 
             final_body = f"""
             <html>
