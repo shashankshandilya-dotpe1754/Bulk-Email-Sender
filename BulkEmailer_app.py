@@ -339,33 +339,29 @@ def send_bulk_emails(
             # ---------------- ATTACH FILES ---------------- #
 
             if attachments:
-
                 for attachment in attachments:
-
                     mime_type, _ = mimetypes.guess_type(
                         attachment.name
                     )
-
-                    if mime_type is None:
-
-                        mime_type = "application/octet-stream"
-
-                    main_type, sub_type = mime_type.split("/", 1)
-
-                    part = MIMEBase(main_type, sub_type)
-
-                    part.set_payload(
-                        attachment.read()
-                    )
-
-                    encoders.encode_base64(part)
-
-                    part.add_header(
-                        "Content-Disposition",
-                        f'attachment; filename="{attachment.name}"'
-                    )
-
-                    msg.attach(part)
+                    
+            if mime_type is None:
+                mime_type = "application/octet-stream"
+                main_type, sub_type = mime_type.split("/", 1)
+                part = MIMEBase(main_type, sub_type)
+                attachment.seek(0)
+                
+                part.set_payload(
+                    attachment.read()
+                )
+                
+                encoders.encode_base64(part)
+                
+                part.add_header(
+                    "Content-Disposition",
+                    f'attachment; filename="{attachment.name}"'
+                )
+                
+                msg.attach(part)
 
             # ---------------- SEND EMAIL ---------------- #
 
