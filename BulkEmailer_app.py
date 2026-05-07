@@ -292,22 +292,48 @@ def send_bulk_emails(
             app_password
         )
 
-        receiver_list = []
+        # ---------------- NORMAL RECEIVER EMAILS ---------------- #
+
+        manual_receivers = []
 
         if receiver_emails.strip():
 
-            receiver_list = [
-                email.strip()
+            manual_receivers = [
+                {
+                    "email": email.strip(),
+                    "name": email.strip().split("@")[0]
+                }
                 for email in receiver_emails.split(",")
                 if email.strip()
             ]
-        if not receiver_list:
-            
-            receiver_list = [sender_email]
 
-        for receiver_email in receiver_list:
+        # ---------------- EXCEL BCC RECEIVERS ---------------- #
 
-            receiver_name = receiver_email.split("@")[0]
+        excel_receivers = []
+
+        if bcc_list:
+
+            for item in bcc_list:
+
+                if isinstance(item, dict):
+
+                    excel_receivers.append(item)
+
+                else:
+
+                    excel_receivers.append({
+                        "email": str(item).strip(),
+                        "name": str(item).split("@")[0]
+                    })
+
+        # ---------------- FINAL RECEIVER LIST ---------------- #
+
+        final_receivers = manual_receivers + excel_receivers
+
+        for person in final_receivers:
+
+            receiver_email = person["email"]
+            receiver_name = person["name"]
 
             personalized_body = f"""
             <p>
@@ -387,11 +413,13 @@ def send_bulk_emails(
             msg = MIMEMultipart("related")
 
             msg["From"] = sender_email
+
             msg["To"] = receiver_email
-            ) if receiver_emails.strip() else sender_email
+
             msg["Subject"] = subject
 
             if cc_emails.strip():
+
                 msg["Cc"] = cc_emails
 
             recipients = [receiver_email]
@@ -434,6 +462,7 @@ def send_bulk_emails(
                     )
 
                     if mime_type is None:
+
                         mime_type = "application/octet-stream"
 
                     main_type, sub_type = mime_type.split("/", 1)
