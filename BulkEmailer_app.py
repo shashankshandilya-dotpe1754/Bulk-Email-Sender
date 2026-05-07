@@ -251,89 +251,95 @@ def send_bulk_emails(
 
             receiver_email = person["email"]
             receiver_name = person["name"]
+# ---------------- PERSONALIZED GREETING ---------------- #
 
-            personalized_body = f"""
-            <p>
-                Hi {receiver_name},
-            </p>
+email_content = email_body.strip() if email_body else ""
 
-            {email_body}
-            """
+greetings = [
+    "hi",
+    "hello",
+    "dear",
+    "good morning",
+    "good afternoon",
+    "good evening"
+]
 
-            final_body = f"""
-            <html>
+clean_text = re.sub(
+    r"<[^>]+>",
+    "",
+    email_content
+).strip().lower()
 
-            <body style="
-                background-color:white;
-                color:black;
-                font-family:Arial;
-                padding:20px;
-            ">
+greeting_found = False
 
-                <div style="
-                    font-size:14px;
-                    line-height:1.6;
-                ">
+for greeting in greetings:
 
-                    {personalized_body}
+    if clean_text.startswith(greeting):
 
-                    <br><br>
+        greeting_found = True
+        break
 
-                    <b>
-                        {signature.replace(chr(10), '<br>')}
-                    </b>
+if greeting_found:
 
-                    <br><br>
+    email_content = re.sub(
+        r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\s|&nbsp;)*",
+        f"\\1\\2 {receiver_name}, ",
+        email_content,
+        flags=re.IGNORECASE
+    )
 
-                    <img src="cid:dotpelogo" width="180">
+    personalized_body = email_content
 
-                </div>
+else:
 
-            </body>
+    personalized_body = f"""
+    <p style="margin:0;">
+        Hi {receiver_name},
+    </p>
 
-            </html>
-            """
+    {email_content}
+    """
 
-            msg = MIMEMultipart("related")
+final_body = f"""
+<html>
 
-            msg["From"] = sender_email
+<body style="
+    background-color:white;
+    color:black;
+    font-family:Arial;
+    padding:10px 20px;
+    margin:0;
+">
 
-            msg["To"] = receiver_email
+    <div style="
+        font-size:14px;
+        line-height:1.2;
+        margin:0;
+        padding:0;
+    ">
 
-            msg["Subject"] = subject
+        {personalized_body}
 
-            if cc_emails.strip():
+        <br>
 
-                msg["Cc"] = cc_emails
+        <div style="margin-top:10px;">
+            <b>
+                {signature.replace(chr(10), '<br>')}
+            </b>
+        </div>
 
-            recipients = [receiver_email]
+        <br>
 
-            if cc_emails.strip():
+        <img src="cid:dotpelogo" width="180">
 
-                recipients += [
-                    email.strip()
-                    for email in cc_emails.split(",")
-                ]
+    </div>
 
-            html_part = MIMEText(
-                final_body,
-                "html"
-            )
+</body>
 
-            msg.attach(html_part)
+</html>
+"""
 
-            # ---------------- ATTACH LOGO ---------------- #
-
-            with open(logo_path, "rb") as img:
-
-                mime_img = MIMEImage(img.read())
-
-                mime_img.add_header(
-                    "Content-ID",
-                    "<dotpelogo>"
-                )
-
-                msg.attach(mime_img)
+msg.attach(mime_img)
 
             # ---------------- ATTACH FILES ---------------- #
 
