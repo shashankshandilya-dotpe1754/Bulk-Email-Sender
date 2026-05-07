@@ -138,7 +138,7 @@ bcc_emails = st.text_area(
 
 subject = st.text_input("Subject")
 
-# ---------------- QUILL EDITOR ---------------- #
+# ---------------- CLEAR QUILL EMAIL BODY ---------------- #
 
 email_body = st.components.v1.html(
     """
@@ -169,33 +169,6 @@ email_body = st.components.v1.html(
         font-family:Arial;
         padding:10px;
     ">
-        <p>Hi,</p>
-
-        <p>
-            We're launching Dotpe Horizon, an AI-powered business intelligence digest,
-            built entirely from your Rista data to help grow your revenue.
-        </p>
-
-        <p>
-            Every week, on WhatsApp, you'll get:
-        </p>
-
-        <ul>
-            <li>What's actually driving (or dragging) your revenue</li>
-            <li>Where your orders, AOV, customers and margins moved - and why</li>
-            <li>Actions to address before next week</li>
-        </ul>
-
-        <p>
-            It's private. It's yours. No benchmarks, no comparisons - just your numbers.
-            To start receiving it, simply reply to this email with "YES".
-            Your data is never shared with anyone outside Horizon.
-        </p>
-
-        <br>
-
-        <p>Team Dotpe Horizon</p>
-
     </div>
 
     <script>
@@ -789,60 +762,3 @@ st.set_page_config(
     layout="centered"
 )
 
-
-# ---------------- CLEAR QUILL EMAIL BODY ---------------- #
-
-email_body = st.components.v1.html(
-    """
-    
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <div id="toolbar">
-
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
-
-        <button class="ql-link"></button>
-
-        <button class="ql-clean"></button>
-
-    </div>
-
-    <div id="editor" style="
-        background:white;
-        color:black;
-        height:320px;
-        font-size:14px;
-        font-family:Arial;
-        padding:10px;
-    ">
-    </div>
-
-    <script>
-
-        var quill = new Quill('#editor', {
-
-            theme: 'snow',
-
-            modules: {
-                toolbar: '#toolbar'
-            }
-
-        });
-
-        document.querySelector('.ql-editor').style.minHeight = "300px";
-        document.querySelector('.ql-editor').style.color = "black";
-        document.querySelector('.ql-editor').style.backgroundColor = "white";
-        document.querySelector('.ql-editor').style.caretColor = "black";
-
-    </script>
-
-    """,
-    height=420,
-    scrolling=True
-)
