@@ -20,86 +20,190 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------- CUSTOM CSS ---------------- #
+# ---------------- LOAD LOCAL IMAGES ---------------- #
 
-st.markdown("""
+def get_base64(image_path):
+
+    with open(image_path, "rb") as img_file:
+
+        return base64.b64encode(
+            img_file.read()
+        ).decode()
+
+background_image = get_base64(
+    "maxbulk-using-gmail.png"
+)
+
+logo_image = get_base64(
+    "dotpe_logo.png"
+)
+
+# ---------------- FULL UI CSS ---------------- #
+
+st.markdown(f"""
 <style>
 
-    .stApp {
-        background-color: #1f1f1f;
-        color: white;
-    }
+    .stApp {{
+        background:
+            linear-gradient(
+                rgba(0, 0, 0, 0.72),
+                rgba(0, 0, 0, 0.72)
+            ),
+            url("data:image/png;base64,{background_image}");
 
-    .main-title {
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        color: white;
+    }}
+
+    .main > div {{
+        background: rgba(17, 17, 17, 0.78);
+        padding: 30px;
+        border-radius: 22px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0px 0px 35px rgba(0,0,0,0.55);
+        margin-top: 25px;
+    }}
+
+    .top-logo {{
+        position: fixed;
+        top: 12px;
+        left: 20px;
+        z-index: 99999;
+    }}
+
+    .top-logo img {{
+        width: 170px;
+        border-radius: 10px;
+        background: white;
+        padding: 6px 10px;
+        box-shadow: 0px 4px 18px rgba(0,0,0,0.45);
+    }}
+
+    .main-title {{
         text-align: center;
         color: white;
-        font-size: 26px;
-        font-weight: bold;
-        margin-bottom: 25px;
-    }
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 30px;
+        letter-spacing: 0.5px;
+        text-shadow: 2px 2px 15px rgba(0,0,0,0.7);
+    }}
 
-    .block-container {
-        padding-top: 2rem;
-    }
+    .block-container {{
+        padding-top: 1rem !important;
+    }}
 
-    .stTextInput input {
-        background-color: #2b2b2b !important;
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+        height: 0px !important;
+    }}
+
+    .stApp > header {{
+        background-color: transparent !important;
+    }}
+
+    .main {{
+        padding-top: 0rem !important;
+    }}
+
+    .stTextInput input {{
+        background: rgba(30, 30, 30, 0.78) !important;
         color: white !important;
-        border: 1px solid #555 !important;
-    }
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 12px !important;
+        height: 52px;
+        transition: 0.3s ease;
+    }}
 
-    .stTextArea textarea {
-        background-color: #2b2b2b !important;
+    .stTextInput input:focus {{
+        border: 1px solid #ff4b4b !important;
+        box-shadow: 0px 0px 12px rgba(255,75,75,0.55);
+    }}
+
+    .stTextArea textarea {{
+        background: rgba(30, 30, 30, 0.78) !important;
         color: white !important;
-        border: 1px solid #555 !important;
-    }
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 12px !important;
+    }}
 
-    input::placeholder,
-    textarea::placeholder {
-        color: #cfcfcf !important;
-        opacity: 1 !important;
-    }
+    .stTextArea textarea:focus {{
+        border: 1px solid #ff4b4b !important;
+        box-shadow: 0px 0px 12px rgba(255,75,75,0.55);
+    }}
 
-    .stFileUploader {
-        background-color: #2b2b2b !important;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #555;
+    .stFileUploader {{
+        background: rgba(30, 30, 30, 0.78) !important;
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.12);
         color: white !important;
-    }
+    }}
 
-    section[data-testid="stFileUploaderDropzone"] {
-        background-color: #2b2b2b !important;
+    section[data-testid="stFileUploaderDropzone"] {{
+        background: rgba(30, 30, 30, 0.78) !important;
         color: white !important;
-        border: 1px dashed #666 !important;
-    }
+        border: 2px dashed rgba(255,255,255,0.2) !important;
+        border-radius: 16px !important;
+    }}
 
-    section[data-testid="stFileUploaderDropzone"] * {
+    section[data-testid="stFileUploaderDropzone"] * {{
         color: white !important;
-    }
+    }}
 
-    label {
+    label {{
         color: white !important;
-        font-weight: 500;
-    }
+        font-weight: 600 !important;
+        font-size: 15px !important;
+    }}
 
-    .stButton button {
+    .stButton button {{
         width: 100%;
-        background-color: #d32f2f;
-        color: white;
-        font-weight: bold;
-        border-radius: 8px;
-        height: 50px;
-        border: none;
-    }
+        background: linear-gradient(
+            135deg,
+            #ff4b4b,
+            #d32f2f
+        );
 
-    .stButton button:hover {
-        background-color: #b71c1c;
         color: white;
-    }
+        font-weight: 700;
+        font-size: 17px;
+        border-radius: 14px;
+        height: 56px;
+        border: none;
+        box-shadow: 0px 6px 20px rgba(255,75,75,0.35);
+    }}
+
+    .stButton button:hover {{
+        background: linear-gradient(
+            135deg,
+            #ff5c5c,
+            #b71c1c
+        );
+
+        color: white;
+    }}
+
+    .stAlert {{
+        border-radius: 14px !important;
+    }}
 
 </style>
 """, unsafe_allow_html=True)
+
+# ---------------- TOP LEFT LOGO ---------------- #
+
+st.markdown(
+    f"""
+    <div class="top-logo">
+        <img src="data:image/png;base64,{logo_image}">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------- TITLE ---------------- #
 
@@ -275,8 +379,8 @@ def send_bulk_emails(
             if greeting_found:
 
                 email_content = re.sub(
-                    r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\s|&nbsp;)*",
-                    f"\\1\\2 {receiver_name}, ",
+                    r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\\s|&nbsp;)*",
+                    f"\\\\1\\\\2 {receiver_name}, ",
                     email_content,
                     flags=re.IGNORECASE
                 )
