@@ -141,95 +141,11 @@ subject = st.text_input("Subject")
 
 # ---------------- CLEAR QUILL EMAIL BODY ---------------- #
 
-email_body = st.components.v1.html(
-    """
+# ---------------- EMAIL BODY ---------------- #
 
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <style>
-
-        .ql-snow .ql-stroke {
-            stroke: white !important;
-        }
-
-        .ql-snow .ql-fill {
-            fill: white !important;
-        }
-
-        .ql-snow .ql-picker {
-            color: white !important;
-        }
-
-        .ql-toolbar.ql-snow {
-            border: 1px solid #555 !important;
-            background: #1f1f1f !important;
-        }
-
-        .ql-container.ql-snow {
-            border: 1px solid #555 !important;
-        }
-
-        .ql-snow .ql-picker-options {
-            background: #2b2b2b !important;
-        }
-
-    </style>
-
-    <div id="toolbar">
-
-        <button class="ql-bold"></button>
-        <button class="ql-italic"></button>
-        <button class="ql-underline"></button>
-
-        <select class="ql-align"></select>
-
-        <button class="ql-list" value="ordered"></button>
-        <button class="ql-list" value="bullet"></button>
-
-        <select class="ql-color"></select>
-        <select class="ql-background"></select>
-
-        <button class="ql-blockquote"></button>
-
-        <button class="ql-link"></button>
-
-        <button class="ql-clean"></button>
-
-    </div>
-
-    <div id="editor" style="
-        background:white;
-        color:black;
-        height:320px;
-        font-size:14px;
-        font-family:Arial;
-        padding:10px;
-    ">
-    </div>
-
-    <script>
-
-        var quill = new Quill('#editor', {
-
-            theme: 'snow',
-
-            modules: {
-                toolbar: '#toolbar'
-            }
-
-        });
-
-        document.querySelector('.ql-editor').style.minHeight = "300px";
-        document.querySelector('.ql-editor').style.color = "black";
-        document.querySelector('.ql-editor').style.backgroundColor = "white";
-        document.querySelector('.ql-editor').style.caretColor = "black";
-
-    </script>
-
-    """,
-    height=420,
-    scrolling=True
+email_body = st.text_area(
+    "Email Body",
+    height=320
 )
 
 # ---------------- ATTACHMENTS ---------------- #
