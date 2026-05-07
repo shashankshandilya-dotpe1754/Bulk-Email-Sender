@@ -13,6 +13,7 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.base import MIMEBase
 from email import encoders
+from streamlit_quill import st_quill
 
 # ---------------- PAGE CONFIG ---------------- #
 
@@ -139,94 +140,13 @@ uploaded_file = st.file_uploader(
 
 subject = st.text_input("Subject")
 
-# ---------------- QUILL EMAIL BODY ---------------- #
+# ---------------- EMAIL BODY ---------------- #
 
-email_body = st.components.v1.html(
-    """
-    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <style>
-
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        .ql-toolbar.ql-snow {
-            border: 1px solid #555 !important;
-            background: #1f1f1f !important;
-        }
-
-        .ql-container.ql-snow {
-            border: 1px solid #555 !important;
-            height: 300px;
-            background: white;
-            color: black;
-        }
-
-        .ql-editor {
-            min-height: 300px;
-            color: black;
-            font-size: 14px;
-            font-family: Arial;
-        }
-
-        .ql-snow .ql-stroke {
-            stroke: white !important;
-        }
-
-        .ql-snow .ql-fill {
-            fill: white !important;
-        }
-
-        .ql-snow .ql-picker {
-            color: white !important;
-        }
-
-    </style>
-
-    <div id="editor"></div>
-
-    <script>
-
-        var quill = new Quill('#editor', {
-
-            theme: 'snow',
-
-            modules: {
-                toolbar: [
-                    ['bold', 'italic', 'underline'],
-                    [{'align': []}],
-                    [{'list': 'ordered'}, {'list': 'bullet'}],
-                    [{'color': []}, {'background': []}],
-                    ['blockquote', 'link'],
-                    ['clean']
-                ]
-            }
-
-        });
-
-        quill.root.innerHTML = "";
-
-        function sendDataToStreamlit() {
-
-            const html = quill.root.innerHTML;
-
-            window.parent.postMessage({
-
-                type: "streamlit:setComponentValue",
-                value: html
-
-            }, "*");
-
-        }
-
-        quill.on('text-change', sendDataToStreamlit);
-
-    </script>
-    """,
-    height=380
+email_body = st_quill(
+    value="",
+    html=True,
+    placeholder="Write your email body here...",
+    key="email_editor"
 )
 
 # ---------------- ATTACHMENTS ---------------- #
