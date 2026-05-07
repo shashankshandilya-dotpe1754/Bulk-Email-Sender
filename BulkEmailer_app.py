@@ -492,8 +492,28 @@ if st.button("Send Emails"):
 
     if not all(mandatory_fields):
 
+        missing_fields = []
+
+        if not sender_email:
+            missing_fields.append("Sender Email")
+
+        if not app_password:
+            missing_fields.append("Email App Password")
+
+        if not uploaded_file:
+            missing_fields.append("Receivers Excel File")
+
+        if not cc_emails:
+            missing_fields.append("CC Emails")
+
+        if not subject:
+            missing_fields.append("Subject")
+
+        if not signature:
+            missing_fields.append("Signature")
+
         st.error(
-            "Please fill all mandatory fields."
+            f"Please fill all mandatory fields. ({', '.join(missing_fields)})"
         )
 
     else:
@@ -538,7 +558,7 @@ if st.button("Send Emails"):
         except Exception as e:
 
             st.error(f"Error: {str(e)}")
-            
+
 import base64
 
 # ---------------- LOAD LOCAL IMAGES ---------------- #
