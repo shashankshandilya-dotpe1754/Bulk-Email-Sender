@@ -778,6 +778,13 @@ st.markdown("""
 
 if "clear_state" not in st.session_state:
 
-    st.session_state.clear()
+    st.session_state.clear_state = True
 
-    st.session_state["clear_state"] = True
+    for key in list(st.session_state.keys()):
+
+        del st.session_state[key]
+
+st.set_page_config(
+    page_title="Bulk Email Sender",
+    layout="centered"
+)
