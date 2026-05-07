@@ -301,6 +301,9 @@ def send_bulk_emails(
                 for email in receiver_emails.split(",")
                 if email.strip()
             ]
+        if not receiver_list:
+            
+            receiver_list = [sender_email]
 
         for receiver_email in receiver_list:
 
@@ -384,7 +387,13 @@ def send_bulk_emails(
             msg = MIMEMultipart("related")
 
             msg["From"] = sender_email
-            msg["To"] = receiver_email
+            msg["To"] = ", ".join(
+                [
+                    email.strip()
+                    for email in receiver_emails.split(",")
+                    if email.strip()
+                ]
+            ) if receiver_emails.strip() else sender_email
             msg["Subject"] = subject
 
             if cc_emails.strip():
