@@ -339,41 +339,8 @@ def send_bulk_emails(
             <p>
                 Hi {receiver_name},
             </p>
-
-            <p>
-                We're launching Dotpe Horizon, an AI-powered business intelligence digest,
-                built entirely from your Rista data to help grow your revenue.
-            </p>
-
-            <p>
-                Every week, on WhatsApp, you'll get:
-            </p>
-
-            <ul>
-                <li>
-                    What's actually driving (or dragging) your revenue
-                </li>
-
-                <li>
-                    Where your orders, AOV, customers and margins moved - and why
-                </li>
-
-                <li>
-                    Actions to address before next week
-                </li>
-            </ul>
-
-            <p>
-                It's private. It's yours. No benchmarks, no comparisons - just your numbers.
-                To start receiving it, simply reply to this email with "YES".
-                Your data is never shared with anyone outside Horizon.
-            </p>
-
-            <br>
-
-            <p>
-                Team Dotpe Horizon
-            </p>
+            
+            {email_body}
             """
 
             final_body = f"""
