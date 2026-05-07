@@ -6,6 +6,7 @@ import smtplib
 import ssl
 import re
 import mimetypes
+import base64
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -121,9 +122,9 @@ with col2:
         type="password"
     )
 
-uploaded_file = st.file_uploader(
-    "Receivers Email and Name (Upload Excel File)",
-    type=["xlsx", "xls"]
+receiver_emails = st.text_area(
+    "Receiver Emails: (Optional - emails separated by comma)",
+    placeholder="xyz@email.com, abc@email.com"
 )
 
 cc_emails = st.text_area(
@@ -131,9 +132,9 @@ cc_emails = st.text_area(
     placeholder="xyz@email.com, abc@email.com"
 )
 
-bcc_emails = st.text_area(
-    "Bcc: (Optional)",
-    placeholder="xyz@email.com, abc@email.com"
+uploaded_file = st.file_uploader(
+    "Bcc Excel File (Upload Excel File)",
+    type=["xlsx", "xls"]
 )
 
 subject = st.text_input("Subject")
@@ -142,13 +143,11 @@ subject = st.text_input("Subject")
 
 email_body = st.components.v1.html(
     """
-    
+
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
     <style>
-
-        /* TOOLBAR BUTTONS WHITE */
 
         .ql-snow .ql-stroke {
             stroke: white !important;
@@ -179,35 +178,21 @@ email_body = st.components.v1.html(
 
     <div id="toolbar">
 
-        <!-- TEXT STYLE -->
-
         <button class="ql-bold"></button>
         <button class="ql-italic"></button>
         <button class="ql-underline"></button>
 
-        <!-- ALIGNMENT -->
-
         <select class="ql-align"></select>
-
-        <!-- LISTS -->
 
         <button class="ql-list" value="ordered"></button>
         <button class="ql-list" value="bullet"></button>
 
-        <!-- TEXT & BG COLORS -->
-
         <select class="ql-color"></select>
         <select class="ql-background"></select>
 
-        <!-- BLOCKQUOTE -->
-
         <button class="ql-blockquote"></button>
 
-        <!-- LINK -->
-
         <button class="ql-link"></button>
-
-        <!-- CLEAR FORMAT -->
 
         <button class="ql-clean"></button>
 
@@ -283,9 +268,9 @@ st.image(logo_path, width=180)
 def send_bulk_emails(
     sender_email,
     app_password,
-    df,
+    receiver_emails,
+    bcc_list,
     cc_emails,
-    bcc_emails,
     subject,
     signature,
     attachments
@@ -307,19 +292,23 @@ def send_bulk_emails(
             app_password
         )
 
-        for index, row in df.iterrows():
+        receiver_list = []
 
-            receiver_email = str(
-                row["Email"]
-            ).strip()
+        if receiver_emails.strip():
 
-            receiver_name = str(
-                row["Name"]
-            ).strip()
+            receiver_list = [
+                email.strip()
+                for email in receiver_emails.split(",")
+                if email.strip()
+            ]
+
+        for receiver_email in receiver_list:
+
+            receiver_name = receiver_email.split("@")[0]
 
             personalized_body = f"""
             <p>
-                Hi {receiver_name.split()[0]},
+                Hi {receiver_name},
             </p>
 
             <p>
@@ -410,12 +399,9 @@ def send_bulk_emails(
                     for email in cc_emails.split(",")
                 ]
 
-            if bcc_emails.strip():
+            if bcc_list:
 
-                recipients += [
-                    email.strip()
-                    for email in bcc_emails.split(",")
-                ]
+                recipients += bcc_list
 
             html_part = MIMEText(
                 final_body,
@@ -480,7 +466,6 @@ def send_bulk_emails(
 mandatory_fields = (
     sender_email,
     app_password,
-    uploaded_file,
     cc_emails,
     subject,
     signature
@@ -500,9 +485,6 @@ if st.button("Send Emails"):
         if not app_password:
             missing_fields.append("Email App Password")
 
-        if not uploaded_file:
-            missing_fields.append("Receivers Excel File")
-
         if not cc_emails:
             missing_fields.append("CC Emails")
 
@@ -520,46 +502,40 @@ if st.button("Send Emails"):
 
         try:
 
-            df = pd.read_excel(
-                uploaded_file
+            bcc_list = []
+
+            if uploaded_file:
+
+                df = pd.read_excel(uploaded_file)
+
+                if "Email" not in df.columns:
+
+                    st.error(
+                        "Excel file must contain Email column."
+                    )
+
+                    st.stop()
+
+                bcc_list = df["Email"].dropna().astype(str).tolist()
+
+            send_bulk_emails(
+                sender_email,
+                app_password,
+                receiver_emails,
+                bcc_list,
+                cc_emails,
+                subject,
+                signature,
+                attachments
             )
 
-            required_columns = [
-                "Email",
-                "Name"
-            ]
-
-            if not all(
-                col in df.columns
-                for col in required_columns
-            ):
-
-                st.error(
-                    "Excel file must contain Email and Name columns."
-                )
-
-            else:
-
-                send_bulk_emails(
-                    sender_email,
-                    app_password,
-                    df,
-                    cc_emails,
-                    bcc_emails,
-                    subject,
-                    signature,
-                    attachments
-                )
-
-                st.success(
-                    "Emails sent successfully!"
-                )
+            st.success(
+                "Emails sent successfully!"
+            )
 
         except Exception as e:
 
             st.error(f"Error: {str(e)}")
-
-import base64
 
 # ---------------- LOAD LOCAL IMAGES ---------------- #
 
@@ -584,8 +560,6 @@ logo_image = get_base64(
 st.markdown(f"""
 <style>
 
-    /* ---------------- BACKGROUND IMAGE ---------------- */
-
     .stApp {{
         background: linear-gradient(
             rgba(0, 0, 0, 0.72),
@@ -599,8 +573,6 @@ st.markdown(f"""
         color: white;
     }}
 
-    /* ---------------- MAIN CONTAINER ---------------- */
-
     .main > div {{
         background: rgba(17, 17, 17, 0.78);
         padding: 30px;
@@ -609,8 +581,6 @@ st.markdown(f"""
         box-shadow: 0px 0px 35px rgba(0,0,0,0.55);
         margin-top: 25px;
     }}
-
-    /* ---------------- DOTPE LOGO ---------------- */
 
     .top-logo {{
         position: fixed;
@@ -627,8 +597,6 @@ st.markdown(f"""
         box-shadow: 0px 4px 18px rgba(0,0,0,0.45);
     }}
 
-    /* ---------------- TITLE ---------------- */
-
     .main-title {{
         text-align: center;
         color: white;
@@ -642,8 +610,6 @@ st.markdown(f"""
     .block-container {{
         padding-top: 2rem;
     }}
-
-    /* ---------------- INPUT FIELDS ---------------- */
 
     .stTextInput input {{
         background: rgba(30, 30, 30, 0.78) !important;
@@ -672,15 +638,11 @@ st.markdown(f"""
         box-shadow: 0px 0px 12px rgba(255,75,75,0.55);
     }}
 
-    /* ---------------- PLACEHOLDER ---------------- */
-
     input::placeholder,
     textarea::placeholder {{
         color: #d9d9d9 !important;
         opacity: 1 !important;
     }}
-
-    /* ---------------- FILE UPLOADER ---------------- */
 
     .stFileUploader {{
         background: rgba(30, 30, 30, 0.78) !important;
@@ -708,16 +670,12 @@ st.markdown(f"""
         color: white !important;
     }}
 
-    /* ---------------- LABELS ---------------- */
-
     label {{
         color: white !important;
         font-weight: 600 !important;
         font-size: 15px !important;
         letter-spacing: 0.3px;
     }}
-
-    /* ---------------- BUTTON ---------------- */
 
     .stButton button {{
         width: 100%;
@@ -749,8 +707,6 @@ st.markdown(f"""
         color: white;
     }}
 
-    /* ---------------- SUCCESS & ERROR ---------------- */
-
     .stAlert {{
         border-radius: 14px !important;
     }}
@@ -774,32 +730,22 @@ st.markdown(
 st.markdown("""
 <style>
 
-    /* REMOVE STREAMLIT TOP SPACE */
-
     .block-container {
         padding-top: 1rem !important;
     }
-
-    /* REMOVE DEFAULT HEADER */
 
     header[data-testid="stHeader"] {
         background: transparent !important;
         height: 0px !important;
     }
 
-    /* REMOVE WHITE TOP BAR */
-
     .stApp > header {
         background-color: transparent !important;
     }
 
-    /* REMOVE EXTRA TOP MARGIN */
-
     .main {
         padding-top: 0rem !important;
     }
-
-    /* FIX LOGO POSITION */
 
     .top-logo {
         position: fixed;
@@ -833,4 +779,3 @@ st.set_page_config(
     page_title="Bulk Email Sender",
     layout="centered"
 )
-
