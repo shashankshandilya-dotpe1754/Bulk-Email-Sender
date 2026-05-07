@@ -773,3 +773,11 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
+
+# ---------------- CLEAR ALL FIELDS ON REFRESH ---------------- #
+
+if "clear_state" not in st.session_state:
+
+    st.session_state.clear()
+
+    st.session_state["clear_state"] = True
