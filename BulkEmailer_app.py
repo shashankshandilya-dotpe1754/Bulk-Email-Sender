@@ -379,8 +379,8 @@ def send_bulk_emails(
             if greeting_found:
 
                 email_content = re.sub(
-                    r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\\s|&nbsp;)*",
-                    f"\\\\1\\\\2 {receiver_name}, ",
+                    r"^(<p>)?(Hi|Hello|Dear|Good Morning|Good Afternoon|Good Evening)(\s|&nbsp;)*",
+                    lambda m: f"{m.group(1) or ''}{m.group(2)} {receiver_name}, ",
                     email_content,
                     flags=re.IGNORECASE
                 )
