@@ -525,7 +525,15 @@ if st.button("Send Emails"):
 
                     st.stop()
 
-                bcc_list = df["Email"].dropna().astype(str).tolist()
+                bcc_list = []
+                for _, row in df.iterrows():
+                    bcc_list.append({
+                        "email": str(row["Email"]).strip(),
+
+                        "name": str(row["Name"]).strip()
+                        if "Name" in df.columns
+                        else str(row["Email"]).split("@")[0]
+                    })
 
             send_bulk_emails(
                 sender_email,
