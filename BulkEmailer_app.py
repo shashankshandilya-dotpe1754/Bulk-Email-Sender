@@ -368,7 +368,6 @@ if attachments:
         )
 
         msg.attach(part)
-            )
 
 # ---------------- VALIDATIONS ---------------- #
 
