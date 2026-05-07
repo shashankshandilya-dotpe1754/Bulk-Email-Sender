@@ -148,14 +148,35 @@ email_body = st.components.v1.html(
 
     <div id="toolbar">
 
+        <!-- TEXT STYLE -->
+
         <button class="ql-bold"></button>
         <button class="ql-italic"></button>
         <button class="ql-underline"></button>
 
+        <!-- ALIGNMENT -->
+
+        <select class="ql-align"></select>
+
+        <!-- LISTS -->
+
         <button class="ql-list" value="ordered"></button>
         <button class="ql-list" value="bullet"></button>
 
+        <!-- TEXT & BG COLORS -->
+
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+
+        <!-- BLOCKQUOTE -->
+
+        <button class="ql-blockquote"></button>
+
+        <!-- LINK -->
+
         <button class="ql-link"></button>
+
+        <!-- CLEAR FORMAT -->
 
         <button class="ql-clean"></button>
 
